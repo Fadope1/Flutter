@@ -2117,3 +2117,41 @@ class _AnimatedPhysicalModelState extends AnimatedWidgetBaseState<AnimatedPhysic
     );
   }
 }
+
+class AnimatedTransform extends ImplicitlyAnimatedWidget {
+  const AnimatedTransform({
+    Key? key,
+    required this.child,
+    required this.transform,
+    required Duration duration,
+    Curve curve = Curves.linear,
+    VoidCallback? onEnd,
+  }) : super(key: key, curve: curve, duration: duration, onEnd: onEnd);
+
+  final Widget child;
+  final Matrix4 transform;
+
+  @override
+  AnimatedWidgetBaseState<AnimatedTransform> createState() =>
+      _AnimatedTransformState();
+}
+
+class _AnimatedTransformState
+    extends AnimatedWidgetBaseState<AnimatedTransform> {
+  Matrix4Tween? _transform;
+
+  @override
+  void forEachTween(TweenVisitor<dynamic> visitor) {
+    _transform = visitor(_transform, widget.transform,
+            (dynamic value) => Matrix4Tween(begin: value as Matrix4))
+        as Matrix4Tween?;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform(
+      transform: _transform!.evaluate(animation),
+      child: widget.child,
+    );
+  }
+}
